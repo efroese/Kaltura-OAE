@@ -33,7 +33,7 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.sling.commons.osgi.OsgiUtil;
+import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.sakaiproject.nakamura.api.doc.ServiceDocumentation;
@@ -310,21 +310,21 @@ public class KalturaService implements FileUploadHandler, EventHandler {
         T returnValue = defaultValue;
         Object propValue = properties.get(settingName);
         if (defaultValue == null) {
-            returnValue = (T) OsgiUtil.toString(propValue, null);
+            returnValue = (T) PropertiesUtil.toString(propValue, null);
             if ("".equals(returnValue)) {
                 returnValue = null;
             }
         } else {
             if (defaultValue instanceof Number) {
                 int num = ((Number) defaultValue).intValue();
-                int value = OsgiUtil.toInteger(propValue, num);
+                int value = PropertiesUtil.toInteger(propValue, num);
                 returnValue = (T) Integer.valueOf(value);
             } else if (defaultValue instanceof Boolean) {
                 boolean bool = ((Boolean) defaultValue).booleanValue();
-                boolean value = OsgiUtil.toBoolean(propValue, bool);
+                boolean value = PropertiesUtil.toBoolean(propValue, bool);
                 returnValue = (T) Boolean.valueOf(value);
             } else if (defaultValue instanceof String) {
-                returnValue = (T) OsgiUtil.toString(propValue, (String) defaultValue);
+                returnValue = (T) PropertiesUtil.toString(propValue, (String) defaultValue);
             }
         }
         return returnValue;
@@ -448,7 +448,8 @@ public class KalturaService implements FileUploadHandler, EventHandler {
      * (non-Javadoc)
      * @see org.sakaiproject.nakamura.api.files.FileUploadHandler#handleFile(java.lang.String, java.io.InputStream, java.lang.String, boolean)
      */
-    public void handleFile(String poolId, InputStream inputStream, String userId, boolean isNew) throws IOException {
+    public void handleFile(Map<String, Object> arg0, String poolId, InputStream inputStream, String userId, boolean isNew) throws IOException {
+        // TODO - what is arg0?
         Map<String, Object> contentProperties = getContentProperties(poolId);
         //dumpMapToLog(contentProperties, "contentProperties");
         // check if this is a video file and do nothing if it is not
