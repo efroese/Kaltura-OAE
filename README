@@ -57,7 +57,17 @@ kaltura.adminsecret=aaaaaaaaaaaaaaaaaaaa
 
 UI Configuration
 ----------------
-TODO
+See OAE config docs:
+https://confluence.sakaiproject.org/display/3AK/OAE+Configuration+and+Deployment
+
+To be set in config_custom.js (usually in 3akai-ux/dev/configuration/config_custom.js):
+
+config.kaltura = {
+    enabled: true,                                   // true / false
+    serverURL:  "http://kaltura.com",                // location of the Kaltura server
+    partnerId:  111,                                 // assigned partner ID
+    playerId: 222222                                 // ID of player you'd like to use
+};
 
 
 Send any questions to Charise M. Arrowood (carrowood@unicon.net).
