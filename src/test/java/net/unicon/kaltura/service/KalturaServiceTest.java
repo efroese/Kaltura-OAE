@@ -19,6 +19,8 @@ import static org.junit.Assert.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.unicon.kaltura.KalturaMediaService;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,14 +34,14 @@ import org.sakaiproject.nakamura.api.files.FilesConstants;
  */
 public class KalturaServiceTest {
 
-    private KalturaService service;
+    private KalturaMediaService service;
 
     /**
      * @throws java.lang.Exception
      */
     @Before
     public void setUp() throws Exception {
-        service = new KalturaService();
+        service = new KalturaMediaService();
     }
 
     /**
@@ -98,14 +100,11 @@ public class KalturaServiceTest {
     @Test
     public void testMakeKalturaTags() {
         String tags = null;
-        Map<String, Object> contentProperties = new HashMap<String, Object>();
-        contentProperties.put(FilesConstants.SAKAI_TAGS, new String[] {"az","bz"});
-        tags = service.makeKalturaTags(contentProperties);
+        tags = service.makeKalturaTags(new String[] {"az","bz"});
         assertNotNull(tags);
         assertEquals("az,bz", tags);
         
-        contentProperties.clear();
-        tags = service.makeKalturaTags(contentProperties);
+        tags = service.makeKalturaTags(new String[]{ });
         assertNotNull(tags);
         assertEquals("", tags);
     }
