@@ -54,30 +54,30 @@ public class KalturaServiceTest {
 
     @Test
     public void testIsFileVideo() {
-        assertTrue( service.isFileVideo(".mp4", "") );
-        assertTrue( service.isFileVideo("", "video/mpeg") );
-        assertTrue( service.isFileVideo(".mov", "video/quicktime") );
+        assertTrue( service.acceptsFileType("", ".mp4"));
+        assertTrue( service.acceptsFileType("video/mpeg", ""));
+        assertTrue( service.acceptsFileType("video/quicktime", ".mov") );
 
-        assertFalse( service.isFileVideo(".xls", "") );
-        assertFalse( service.isFileVideo("", "text/html") );
-        assertFalse( service.isFileVideo(".txt", "text/plain") );
-        assertFalse( service.isFileVideo("", "") );
-        assertFalse( service.isFileVideo(null, null) );
+        assertFalse( service.acceptsFileType("", ".xls") );
+        assertFalse( service.acceptsFileType("text/html", "") );
+        assertFalse( service.acceptsFileType("text/plain", ".txt") );
+        assertFalse( service.acceptsFileType("", "") );
+        assertFalse( service.acceptsFileType(null, null) );
 
         // NOTE: cannot throw exception
     }
 
     @Test
     public void testIsFileAudio() {
-        assertTrue( service.isFileAudio(".mp3", "") );
-        assertTrue( service.isFileAudio("", "audio/mpeg") );
-        assertTrue( service.isFileAudio(".aif", "audio/x-aiff") );
+        assertTrue( service.acceptsFileType("", ".mp3") );
+        assertTrue( service.acceptsFileType("audio/mpeg", "") );
+        assertTrue( service.acceptsFileType("audio/x-aiff", ".aif") );
 
-        assertFalse( service.isFileAudio(".xls", "") );
-        assertFalse( service.isFileAudio("", "text/html") );
-        assertFalse( service.isFileAudio(".txt", "text/plain") );
-        assertFalse( service.isFileAudio("", "") );
-        assertFalse( service.isFileAudio(null, null) );
+        assertFalse( service.acceptsFileType("", ".xls") );
+        assertFalse( service.acceptsFileType("text/html", "") );
+        assertFalse( service.acceptsFileType("text/plain", ".txt") );
+        assertFalse( service.acceptsFileType("", "") );
+        assertFalse( service.acceptsFileType(null, null) );
 
         // NOTE: cannot throw exception
     }
