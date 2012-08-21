@@ -24,8 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.scr.annotations.Activate;
@@ -36,7 +38,6 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.commons.osgi.PropertiesUtil;
-
 import org.sakaiproject.nakamura.api.lite.Repository;
 import org.sakaiproject.nakamura.api.lite.Session;
 import org.sakaiproject.nakamura.api.lite.content.Content;
@@ -72,54 +73,69 @@ import com.kaltura.client.types.KalturaMediaEntry;
 @Service
 public class KalturaMediaService implements MediaService {
 
-  private static final String APPLICATION_X_MEDIA_KALTURA = "application/x-media-kaltura";
-
-  private static final String ERROR_MISSING_KS = "MISSING_KS";
-
-  private static final String ERROR_INVALID_KS = "INVALID_KS";
-
   private static final Logger LOG = LoggerFactory
       .getLogger(KalturaMediaService.class);
+  private static final String APPLICATION_X_MEDIA_KALTURA = "application/x-media-kaltura";
 
+
+  // Kaltura API Error codes
+  private static final String ERROR_MISSING_KS = "MISSING_KS";
+  private static final String ERROR_INVALID_KS = "INVALID_KS";
+
+  // Content mimeTypes after upload
   public static final String KALTURA_MIMETYPE_VIDEO = "kaltura/video";
   public static final String KALTURA_MIMETYPE_AUDIO = "kaltura/audio";
   public static final String KALTURA_MIMETYPE_IMAGE = "kaltura/image";
 
   @Property(intValue = 111, label = "Partner Id")
-  private static final String KALTURA_PARTNER_ID = "kaltura.partnerid";
+  public static final String KALTURA_PARTNER_ID = "kaltura.partnerid";
   int kalturaPartnerId;
 
   @Property(value = "setThisToYourKalturaSecret", label = "Secret")
-  private static final String KALTURA_SECRET = "kaltura.secret";
+  public static final String KALTURA_SECRET = "kaltura.secret";
   String kalturaSecret;
 
   @Property(value = "setThisToYourKalturaAdminSecret", label = "Admin Secret")
-  private static final String KALTURA_ADMIN_SECRET = "kaltura.adminsecret";
+  public static final String KALTURA_ADMIN_SECRET = "kaltura.adminsecret";
   String kalturaAdminSecret;
 
   @Property(value = "http://www.kaltura.com", label = "Endpoint")
-  private static final String KALTURA_ENDPOINT = "kaltura.endpoint";
+  public static final String KALTURA_ENDPOINT = "kaltura.endpoint";
   String kalturaEndpoint;
 
   @Property(value = "http://cdn.kaltura.com", label = "CDN")
-  private static final String KALTURA_CDN = "kaltura.cdn";
+  public static final String KALTURA_CDN = "kaltura.cdn";
   String kalturaCDN;
 
   // NOTE set to 24 hours by request of kaltura 60 default to 60 seconds - AZ
   @Property(intValue = KalturaMediaService.DEFAULT_KALTURA_SESSION_LENGTH, label = "Session length (in seconds)")
-  private static final String KALTURA_SESSION_LENGTH = "kaltura.session.length";
-  private static final int DEFAULT_KALTURA_SESSION_LENGTH = 86400;
+  public static final String KALTURA_SESSION_LENGTH = "kaltura.session.length";
+  public static final int DEFAULT_KALTURA_SESSION_LENGTH = 86400;
   int kalturaSessionLength;
 
   public static final String DEFAULT_KALTURA_PLATER_AUDIO = "2158531";
   @Property(value = KalturaMediaService.DEFAULT_KALTURA_PLATER_AUDIO, label = "Player - Audio")
-  private static final String KALTURA_PLAYER_AUDIO = "kaltura.player.audio";
+  public static final String KALTURA_PLAYER_AUDIO = "kaltura.player.audio";
   String kalturaPlayerIdAudio;
 
   public static final String DEFAULT_KALTURA_PLATER_VIDEO = "1522202";
   @Property(value = KalturaMediaService.DEFAULT_KALTURA_PLATER_VIDEO, label = "Player - Video View")
-  private static final String KALTURA_PLAYER_VIEW = "kaltura.player.view";
+  public static final String KALTURA_PLAYER_VIEW = "kaltura.player.view";
   String kalturaPlayerIdView;
+
+  public static final String[] DEFAULT_VIDEO_EXTENSIONS = new String[] {
+      ".avi", ".mpg", ".mpe", ".mpeg", ".mp4", ".m4v", ".mov",
+      ".qt", ".asf", ".asx", ".wmv", ".rm", ".ogm", ".3gp", ".mkv"};
+  @Property(value = { ".avi", ".mpg", ".mpe", ".mpeg", ".mp4", ".m4v", ".mov", ".qt",
+      ".asf", ".asx", ".wmv", ".rm", ".ogm", ".3gp", ".mkv"}, label = "Video extensions")
+  private static final String KALTURA_VIDEO_EXTENSIONS = "kaltura.video.extensions";
+  Set<String> videoExtensions;
+
+  public static final String[] DEFAULT_AUDIO_EXTENSIONS = new String[] {
+    ".wav", ".aif", ".mp3", ".aac", ".mid", ".mpa", ".wma", ".ra", };
+  @Property(value = {".wav", ".aif", ".mp3", ".aac", ".mid", ".mpa", ".wma", ".ra" }, label = "Video extensions")
+  private static final String KALTURA_AUDIO_EXTENSIONS = "kaltura.audio.extensions";
+  Set<String> audioExtensions;
 
   @Reference
   protected Repository repository;
@@ -146,6 +162,16 @@ public class KalturaMediaService implements MediaService {
     kalturaEndpoint = PropertiesUtil.toString(props.get(KALTURA_ENDPOINT), null);
     kalturaCDN = PropertiesUtil.toString(props.get(KALTURA_CDN), null);
     kalturaSessionLength = PropertiesUtil.toInteger(props.get(KALTURA_SESSION_LENGTH), DEFAULT_KALTURA_SESSION_LENGTH);
+
+    videoExtensions = new HashSet<String>();
+    for (String vExt : PropertiesUtil.toStringArray(props.get(KALTURA_VIDEO_EXTENSIONS), DEFAULT_VIDEO_EXTENSIONS)){
+      videoExtensions.add(vExt);
+    }
+
+    audioExtensions = new HashSet<String>();
+    for (String aExt : PropertiesUtil.toStringArray(props.get(KALTURA_AUDIO_EXTENSIONS), DEFAULT_AUDIO_EXTENSIONS)){
+      audioExtensions.add(aExt);
+    }
 
     for (String prop : new String[] { kalturaSecret, kalturaAdminSecret,
         kalturaEndpoint, kalturaCDN }) {
@@ -232,7 +258,7 @@ public class KalturaMediaService implements MediaService {
     try {
       kbe = uploadItem(metadata.getUser(), media.getName(), media.length(),
           new FileInputStream(media), KalturaMediaType.VIDEO, metadata.getTitle(),
-          metadata.getDescription(), StringUtils.join(metadata.getTags(), ","));
+          metadata.getDescription(), makeKalturaTags(metadata.getTags()));
 
       if (kbe != null) {
         // item upload successful
@@ -487,8 +513,15 @@ public class KalturaMediaService implements MediaService {
    */
   @Override
   public boolean acceptsFileType(String mimeType, String extension) {
-    return mimeType != null
-        && (mimeType.startsWith("kaltura/") || mimeType.startsWith(APPLICATION_X_MEDIA_KALTURA));
+    if (mimeType != null
+        && (mimeType.startsWith("kaltura/") || mimeType.startsWith(APPLICATION_X_MEDIA_KALTURA))){
+      return true;
+    }
+    if (extension != null 
+        && (videoExtensions.contains(extension) || audioExtensions.contains(extension))){
+      return true;
+    }
+    return false;
   }
 
   // ------- Kaltura Methods -----
@@ -594,6 +627,14 @@ public class KalturaMediaService implements MediaService {
       kctl.set(kc);
     }
     return kctl.get();
+  }
+
+  public String makeKalturaTags(String[] tags) {
+    String tagsString = null;
+    if (tags != null){
+      tagsString = StringUtils.join(tags, ",");
+    }
+    return tagsString;
   }
 
   /**
