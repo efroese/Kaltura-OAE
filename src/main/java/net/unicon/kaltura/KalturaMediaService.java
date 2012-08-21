@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -254,7 +255,8 @@ public class KalturaMediaService implements MediaService {
     String mediaId = null;
     try {
       kbe = uploadItem(metadata.getUser(), media.getName(), media.length(),
-          new FileInputStream(media), KalturaMediaType.VIDEO, metadata.getTitle(),
+          new FileInputStream(media), KalturaMediaType.VIDEO,
+          makeKalturaTitle(metadata.getTitle(), getOrderedContentVersionNumber(metadata.getContentId(), metadata.getVersionId())),
           metadata.getDescription(), makeKalturaTags(metadata.getTags()));
 
       if (kbe != null) {
@@ -803,6 +805,39 @@ public class KalturaMediaService implements MediaService {
           + ": item not found");
     }
     return content;
+  }
+
+  /**
+   * Get the index of the version in the version history.
+   * OAE version numbers are big ugly hashed ids.
+   * This method translates it into an ordinal version number.
+   * @param poolId the content id
+   * @param versionId the sparse version id
+   * @return the ordinal version number
+   */
+  protected int getOrderedContentVersionNumber(String poolId, String versionId) {
+    if (poolId == null){
+      return -1;
+    }
+    if (versionId == null){
+      return 1;
+    }
+    int nthVersion = 1;
+    try {
+      Session adminSession = repository.loginAdministrative();
+      ContentManager cm = adminSession.getContentManager();
+      // Oldest to newest order
+      List<String> versionIds = cm.getVersionHistory(poolId);
+      if (versionIds.indexOf(versionId) != -1){
+        nthVersion = versionIds.size() - versionIds.indexOf(versionId);
+      }
+      adminSession.logout();
+    } catch (Exception e) {
+      LOG.error("Unable to get content by path={}", poolId, e.getMessage());
+      throw new RuntimeException("Unable to get content by path=" + poolId
+          + ": " + e, e);
+    }
+    return nthVersion;
   }
 
   /**
