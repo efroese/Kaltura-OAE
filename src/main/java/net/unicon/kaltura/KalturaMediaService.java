@@ -635,6 +635,16 @@ public class KalturaMediaService implements MediaService {
     return tagsString;
   }
 
+  public String makeKalturaTitle(String title, int version){
+    if (version < 1){
+      version = 1;
+    }
+    if (StringUtils.trimToNull(title) == null){
+      title = "title";
+    }
+    return title + " - " + version; 
+  }
+
   /**
    * Get the KME with a permissions check to make sure the user key matches
    * 

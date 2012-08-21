@@ -14,17 +14,15 @@
  */
 package net.unicon.kaltura.service;
 
-import static org.junit.Assert.*;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import net.unicon.kaltura.KalturaMediaService;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.nakamura.api.files.FilesConstants;
 
 
 /**
@@ -85,14 +83,15 @@ public class KalturaServiceTest {
     @Test
     public void testMakeKalturaTitle() {
         String title = null;
-        Map<String, Object> contentProperties = new HashMap<String, Object>();
-        contentProperties.put(FilesConstants.POOLED_CONTENT_FILENAME, "AZ-title");
-        title = service.makeKalturaTitle(contentProperties, 0);
+        title = service.makeKalturaTitle("AZ-title", 0);
         assertNotNull(title);
         assertEquals("AZ-title - 1", title);
 
-        contentProperties.clear();
-        title = service.makeKalturaTitle(contentProperties, 0);
+        title = service.makeKalturaTitle("", 0);
+        assertNotNull(title);
+        assertEquals("title - 1", title);
+
+        title = service.makeKalturaTitle(null, 0);
         assertNotNull(title);
         assertEquals("title - 1", title);
     }
