@@ -512,7 +512,8 @@ public class KalturaMediaService implements MediaService {
   public boolean acceptsFileType(String mimeType, String extension) {
     boolean accept = false;
     if (mimeType != null
-        && (mimeType.startsWith("kaltura/") || mimeType.startsWith(APPLICATION_X_MEDIA_KALTURA))){
+        && (mimeType.startsWith("kaltura/") || mimeType.startsWith(APPLICATION_X_MEDIA_KALTURA)
+            || mimeType.startsWith("video/") || mimeType.startsWith("audio/"))){
       accept = true;
     }
     if (extension != null 
