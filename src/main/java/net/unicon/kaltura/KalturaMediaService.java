@@ -825,22 +825,24 @@ public class KalturaMediaService implements MediaService {
     if (versionId == null){
       return 1;
     }
-    int nthVersion = 1;
+    int orderedVersion = 1;
     try {
       Session adminSession = repository.loginAdministrative();
       ContentManager cm = adminSession.getContentManager();
       // Oldest to newest order
       List<String> versionIds = cm.getVersionHistory(poolId);
       if (versionIds.indexOf(versionId) != -1){
-        nthVersion = versionIds.size() - versionIds.indexOf(versionId);
+        orderedVersion = versionIds.size() - versionIds.indexOf(versionId);
       }
+      LOG.debug("Content={}, Version={}, OrderedVersion={}",
+          new String[] { poolId, versionId, Integer.toString(orderedVersion) });
       adminSession.logout();
     } catch (Exception e) {
       LOG.error("Unable to get content by path={}", poolId, e.getMessage());
       throw new RuntimeException("Unable to get content by path=" + poolId
           + ": " + e, e);
     }
-    return nthVersion;
+    return orderedVersion;
   }
 
   /**
