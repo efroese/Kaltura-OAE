@@ -507,16 +507,6 @@ public class KalturaMediaService implements MediaService {
   /**
    * {@inheritDoc}
    * 
-   * @see org.sakaiproject.nakamura.api.media.MediaService#getMimeType()
-   */
-  @Override
-  public String getMimeType() {
-    return APPLICATION_X_MEDIA_KALTURA;
-  }
-
-  /**
-   * {@inheritDoc}
-   * 
    * @see org.sakaiproject.nakamura.api.media.MediaService#acceptsFileType(java.lang.String, java.lang.String)
    */
   @Override
