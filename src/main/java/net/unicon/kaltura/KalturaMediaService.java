@@ -289,6 +289,12 @@ public class KalturaMediaService implements MediaService {
             "Completed upload ({}) to Kaltura of file ({}) of type ({}) and created kalturaEntry ({})",
             new String[] { metadata.getTitle(), media.getName(), kalturaMimeType,
                 mediaItem.getKalturaId() });
+        if(LOG.isDebugEnabled()){
+          LOG.debug("Updated the following properties on {}:", metadata.getContentId());
+          for (Entry<String,Object> entry: props.entrySet()){
+           LOG.debug("{}={}", entry.getKey(), (String)entry.getValue());
+          }
+        }
         updateContent(metadata.getContentId(), props); // exception if update fails
       } else {
         // should we fail here if kaltura does not return a valid KBE? -AZ
