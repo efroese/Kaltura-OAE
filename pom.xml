@@ -9,7 +9,7 @@
     </parent>
     <artifactId>net.unicon.kaltura</artifactId>
     <packaging>bundle</packaging>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
     <name>Sakai OAE Kaltura Integration Bundle</name>
     <description>Service to provide integration with the Kaltura service</description>
     <inceptionYear>2011</inceptionYear>
