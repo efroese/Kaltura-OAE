@@ -21,8 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import net.unicon.kaltura.KalturaMediaService;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +28,6 @@ import org.sakaiproject.nakamura.api.lite.Repository;
 import org.sakaiproject.nakamura.api.lite.Session;
 import org.sakaiproject.nakamura.api.lite.StorageClientException;
 import org.sakaiproject.nakamura.api.lite.accesscontrol.AccessDeniedException;
-import org.sakaiproject.nakamura.api.lite.authorizable.AuthorizableManager;
 import org.sakaiproject.nakamura.api.lite.content.Content;
 import org.sakaiproject.nakamura.api.lite.content.ContentManager;
 import org.sakaiproject.nakamura.lite.BaseMemoryRepository;
@@ -43,6 +40,7 @@ import com.google.common.collect.ImmutableSet;
  * Unit testing for the kaltura service
  * 
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
+ * @author Erik Froese (erik @ hallwaytech.com)
  */
 public class KalturaServiceTest {
 

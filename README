@@ -1,7 +1,11 @@
 This is the Sakai OAE / Kaltura integration. 
 Developed by Aaron Zeckoski (Lead) of Unicon for Kaltura and New York University.
+Modified to support the OAE media streaming and transcoding bundle by Erik Froese for rSmart.
 
-Unicon:     http://www.unicon.net/
+Unicon:       http://www.unicon.net/
+rSmart:       http://www.rsmart.com/
+Hallway Tech: http://www.hallwaytech.com/
+
 Sakai OAE:  http://sakaiproject.org/node/2239
 Kaltura:    http://corp.kaltura.com/
 
@@ -11,6 +15,12 @@ This integration will intercept media files which are loaded into Sakai OAE and 
 send them over to the Kaltura server (as configured). The OAE content item will be updated
 with Kaltura specific data so that a Kaltura player can be rendered for the user.
 This is all seamless to the end user (they should not even realize they are using Kaltura).
+
+The original bundle sent video to Kaltura after it had been stored by OAE. The content
+stored on OAE was never used or deleted, so it was wasting space. The media bundle,
+developed by Carl Hall and Mark Triggs in conjunction with Hallway Technologies,
+rSmart, and UC Berkley, avoids storing media file in the OAE content store. It instead
+stores uploaded media in a temporary area, uploads it to the remote store, and deletes it.
 
 
 Source
@@ -23,9 +33,22 @@ Checkout the source code using git version 1.7 (or higher)
 
     git clone git://github.com/Unicon/Kaltura-OAE.git kaltura
 
+As of the time of this writing, the media bundle has not yet been merged into the
+OAE community repository. You can fetch it from Carl Hall's branch.
+
+https://github.com/thecarlhall/nakamura/tree/ucbvideo
+
 
 Build
 -----
+
+From a nakamura clone
+
+	git remote add thecarlhall https://github.com/thecarlhall/nakamura.git
+	git fetch thecarlhall
+	git checkout -b ucbvideo thecarlhall/ucbvideo
+	mvn clean install -f contrib/media/common/pom.xml
+
 From the base directory of the code (where this README is located)
 
 	mvn clean install
@@ -35,6 +58,13 @@ NOTE: Maven 2.2.x and Java 1.6 are required to build the source
 
 Deploy
 ------
+
+Upload the contrib/media/common/target/org.sakaiproject.nakamura.media-*.jar into your OAE instance using the system console (your.server/system/console/bundles)
+OR
+deploy into a running OAE instance using Maven:
+	mvn clean install -f contrib/media/common/pom.xml -Predeploy
+
+
 Upload the target/net.unicon.kaltura-*.jar into your OAE instance using the system console (your.server/system/console/bundles)
 OR 
 deploy into a running OAE instance using Maven:
@@ -70,6 +100,9 @@ config.kaltura = {
 };
 
 
-Send any questions to Charise M. Arrowood (carrowood@unicon.net).
+Send any questions about the media-frameworkr-enabled port (this repository) to Erik Froese (erik@hallwaytech.com)
+
+Send any questions about the original bundle Charise M. Arrowood (carrowood@unicon.net).
 
 -Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
+-Erik Froese (erik@hallwaytech.com)

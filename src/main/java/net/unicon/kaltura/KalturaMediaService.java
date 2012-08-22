@@ -66,6 +66,9 @@ import com.kaltura.client.types.KalturaMediaEntry;
  * That bundle uploads stored content to Kaltura. This module takes
  * advantage of the media service to only store the content in the remote
  * Kaltura service.
+ *
+ * @author Aaron Zeckoski (azeckoski @ vt.edu)
+ * @author Erik Froese (erik @ hallwaytech.com)
  */
 @Component(enabled = true, metatype = true, policy = ConfigurationPolicy.REQUIRE)
 @Service
