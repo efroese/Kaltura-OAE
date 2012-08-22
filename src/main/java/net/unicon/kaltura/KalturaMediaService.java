@@ -292,7 +292,7 @@ public class KalturaMediaService implements MediaService {
         if(LOG.isDebugEnabled()){
           LOG.debug("Updated the following properties on {}:", metadata.getContentId());
           for (Entry<String,Object> entry: props.entrySet()){
-           LOG.debug("{}={}", entry.getKey(), (String)entry.getValue());
+           LOG.debug("{}={}", new Object[] { entry.getKey(), entry.getValue() });
           }
         }
         updateContent(metadata.getContentId(), props); // exception if update fails
