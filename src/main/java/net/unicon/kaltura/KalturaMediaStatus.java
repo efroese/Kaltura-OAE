@@ -18,8 +18,13 @@ import org.sakaiproject.nakamura.api.media.MediaStatus;
 
 import com.kaltura.client.enums.KalturaEntryStatus;
 
+/**
+ * Convert Kaltura media statuses to the simpler OAE statuses.
+ *
+ * @author Erik Froese erik@hallwaytech.com
+ */
 public class KalturaMediaStatus implements MediaStatus {
-  
+
   private KalturaEntryStatus kalturaStatus;
 
   public KalturaMediaStatus() { }
