@@ -257,8 +257,12 @@ public class KalturaMediaService implements MediaService {
     KalturaBaseEntry kbe;
     String mediaId = null;
     try {
+      KalturaMediaType mediaType = KalturaMediaType.VIDEO;
+      if (audioExtensions.contains(metadata.getExtension())){
+        mediaType = KalturaMediaType.AUDIO;
+      }
       kbe = uploadItem(metadata.getUser(), media.getName(), media.length(),
-          new FileInputStream(media), KalturaMediaType.VIDEO,
+          new FileInputStream(media), mediaType,
           makeKalturaTitle(metadata.getTitle(), getOrderedContentVersionNumber(metadata.getContentId(), metadata.getVersionId())),
           metadata.getDescription(), makeKalturaTags(metadata.getTags()));
 
@@ -349,6 +353,9 @@ public class KalturaMediaService implements MediaService {
 
     KalturaMediaEntry mediaEntry = new KalturaMediaEntry();
     mediaEntry.mediaType = KalturaMediaType.VIDEO;
+    if (audioExtensions.contains(metadata.getExtension())){
+      mediaEntry.mediaType = KalturaMediaType.AUDIO;
+    }
     mediaEntry.userId = metadata.getUser();
     mediaEntry.name = metadata.getTitle();
     if (metadata.getDescription() != null) {
@@ -738,7 +745,7 @@ public class KalturaMediaService implements MediaService {
     }
     if (uploadTokenId != null){
         KalturaMediaEntry mediaEntry = new KalturaMediaEntry();
-        mediaEntry.mediaType = KalturaMediaType.VIDEO;
+        mediaEntry.mediaType = mediaType;
         mediaEntry.userId = userId;
         mediaEntry.name = title;
         if (description != null) {
