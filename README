@@ -1,3 +1,4 @@
+
 This is the Sakai OAE / Kaltura integration. 
 Developed by Aaron Zeckoski (Lead) of Unicon for Kaltura and New York University.
 Modified to support the OAE media streaming and transcoding bundle by Erik Froese for rSmart.
@@ -77,18 +78,18 @@ Deploy in the app jar
 
 Follow the build instructions above.
 
-Add the following to nakamura/app/src/main/bundles/list.xml
+Add the following to nakamura/app/src/main/bundles/list.
 
-	<bundle>
-      		<groupId>org.sakaiproject.nakamura</groupId>
-      		<artifactId>org.sakaiproject.nakamura.media.common</artifactId>
-      		<version>1.5.0-SNAPSHOT</version>
-    	</bundle>
+        <bundle>
+                <groupId>org.sakaiproject.nakamura</groupId>
+                <artifactId>org.sakaiproject.nakamura.media.common</artifactId>
+                <version>1.5.0-SNAPSHOT</version>
+        </bundle>
    	<bundle>
-      		<groupId>org.sakaiproject.nakamura</groupId>
-      		<artifactId>net.unicon.kaltura</artifactId>
-      		<version>0.3-SNAPSHOT</version>
-    	</bundle>
+                <groupId>org.sakaiproject.nakamura</groupId>
+                <artifactId>net.unicon.kaltura</artifactId>
+                <version>0.3-SNAPSHOT</version>
+        </bundle>
 
 Configuration
 -------------
@@ -98,9 +99,9 @@ create a load/net.unicon.kaltura.service.KalturaService.cfg file
 (the load directory should be in the same dir as your OAE installation, you may need to create this dir) 
 with at least the following settings in it (see system/console for the complete set):
 
-kaltura.partnerid=111
-kaltura.secret=sssssssssssssssss
-kaltura.adminsecret=aaaaaaaaaaaaaaaaaaaa
+    kaltura.partnerid=111
+    kaltura.secret=sssssssssssssssss
+    kaltura.adminsecret=aaaaaaaaaaaaaaaaaaaa
 
 
 UI Configuration
@@ -110,17 +111,18 @@ https://confluence.sakaiproject.org/display/3AK/OAE+Configuration+and+Deployment
 
 To be set in config_custom.js (usually in 3akai-ux/dev/configuration/config_custom.js):
 
-config.kaltura = {
-    enabled: true,                                   // true / false
-    serverURL:  "http://kaltura.com",                // location of the Kaltura server
-    partnerId:  111,                                 // assigned partner ID
-    playerId: 222222                                 // ID of player you'd like to use
-};
+    config.kaltura = {
+        enabled: true,                                   // true / false
+        serverURL:  "http://kaltura.com",                // location of the Kaltura server
+        partnerId:  111,                                 // assigned partner ID
+        playerId: 222222                                 // ID of player you'd like to use
+    };
 
 
-Send any questions about the media-frameworkr-enabled port (this repository) to Erik Froese (erik@hallwaytech.com)
+Send any questions about the media-framework-enabled port (this repository) to Erik Froese (erik@hallwaytech.com)
 
 Send any questions about the original bundle Charise M. Arrowood (carrowood@unicon.net).
 
--Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
--Erik Froese (erik@hallwaytech.com)
+* Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
+
+* Erik Froese (erik@hallwaytech.com)
