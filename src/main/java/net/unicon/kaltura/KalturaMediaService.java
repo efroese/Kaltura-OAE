@@ -36,6 +36,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.commons.osgi.PropertiesUtil;
+import org.sakaiproject.nakamura.api.files.FilesConstants;
 import org.sakaiproject.nakamura.api.lite.Repository;
 import org.sakaiproject.nakamura.api.lite.Session;
 import org.sakaiproject.nakamura.api.lite.content.Content;
@@ -269,8 +270,18 @@ public class KalturaMediaService implements MediaService {
       if (kbe != null) {
         // item upload successful
         KalturaMediaItem mediaItem = new KalturaMediaItem(kbe, metadata.getUser());
+
         Map<String, Object> props = new HashMap<String, Object>(10);
         mediaId = mediaItem.getKalturaId();
+        props.put("bodyMediaId", mediaId);
+
+        String kalturaMimeType = KALTURA_MIMETYPE_VIDEO;
+        if (KalturaMediaItem.TYPE_AUDIO.equals(mediaItem.getMediaType())) {
+          kalturaMimeType = KALTURA_MIMETYPE_AUDIO;
+        } else if (KalturaMediaItem.TYPE_IMAGE.equals(mediaItem.getMediaType())) {
+          kalturaMimeType = KALTURA_MIMETYPE_IMAGE;
+        }
+        props.put(FilesConstants.POOLED_CONTENT_MIMETYPE, kalturaMimeType);
 
         props.put("kaltura-updated", new Date().getTime());
         props.put("kaltura-id", mediaItem.getKalturaId());
@@ -281,32 +292,20 @@ public class KalturaMediaService implements MediaService {
         props.put("kaltura-height", mediaItem.getHeight());
         props.put("kaltura-width", mediaItem.getWidth());
         props.put("kaltura-type", mediaItem.getType());
-        String kalturaMimeType = KALTURA_MIMETYPE_VIDEO;
-        if (KalturaMediaItem.TYPE_AUDIO.equals(mediaItem.getMediaType())) {
-          kalturaMimeType = KALTURA_MIMETYPE_AUDIO;
-        } else if (KalturaMediaItem.TYPE_IMAGE.equals(mediaItem.getMediaType())) {
-          kalturaMimeType = KALTURA_MIMETYPE_IMAGE;
-        }
-        props.put(InternalContent.MIMETYPE_FIELD, kalturaMimeType);
 
         LOG.info(
             "Completed upload ({}) to Kaltura of file ({}) of type ({}) and created kalturaEntry ({})",
             new String[] { metadata.getTitle(), media.getName(), kalturaMimeType,
                 mediaItem.getKalturaId() });
-        if(LOG.isDebugEnabled()){
-          LOG.debug("Updated the following properties on {}:", metadata.getContentId());
-          for (Entry<String,Object> entry: props.entrySet()){
-           LOG.debug("{}={}", new Object[] { entry.getKey(), entry.getValue() });
-          }
-        }
-        updateContent(metadata.getContentId(), props); // exception if update fails
       } else {
         // should we fail here if kaltura does not return a valid KBE? -AZ
         LOG.error("Response from kaltura was null.");
+        throw new MediaServiceException("Response from kaltura was null.");
       }
       LOG.info("Kaltura file upload handler complete: {}", media.getName());
     } catch (FileNotFoundException e) {
       LOG.error("{} not found.", media.getAbsolutePath());
+      throw new MediaServiceException(media.getAbsolutePath() + " not found", e);
     }
     return mediaId;
   }
@@ -890,6 +889,18 @@ public class KalturaMediaService implements MediaService {
           + ": " + e, e);
     }
     return props;
+  }
+
+  public String getMimeType(String mimeType, String extension) {
+    String kaltuaMimeType; = "kaltura/video";
+    if (audioExtensions.contains(extension)){
+      kaltuaMimeType; = "kaltura/audio";
+    }
+    return kaltuaMimeType;
+  }
+
+  public boolean isMedia(String mimeType) {
+    return acceptsFileType(mimeType, null);
   }
 
 }
