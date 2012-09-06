@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,13 +38,11 @@ import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.sakaiproject.nakamura.api.files.FilesConstants;
 import org.sakaiproject.nakamura.api.lite.Repository;
 import org.sakaiproject.nakamura.api.lite.Session;
-import org.sakaiproject.nakamura.api.lite.content.Content;
 import org.sakaiproject.nakamura.api.lite.content.ContentManager;
 import org.sakaiproject.nakamura.api.media.MediaMetadata;
 import org.sakaiproject.nakamura.api.media.MediaService;
 import org.sakaiproject.nakamura.api.media.MediaServiceException;
 import org.sakaiproject.nakamura.api.media.MediaStatus;
-import org.sakaiproject.nakamura.lite.content.InternalContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,16 +74,16 @@ public class KalturaMediaService implements MediaService {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(KalturaMediaService.class);
-  private static final String APPLICATION_X_MEDIA_KALTURA = "application/x-media-kaltura";
-
 
   // Kaltura API Error codes
   private static final String ERROR_MISSING_KS = "MISSING_KS";
   private static final String ERROR_INVALID_KS = "INVALID_KS";
 
+  // mimeType set by the media coordinator
+  public static final String APPLICATION_X_MEDIA_KALTURA = "application/x-media-kaltura";
   // Content mimeTypes after upload
-  public static final String KALTURA_MIMETYPE_VIDEO = "kaltura/video";
-  public static final String KALTURA_MIMETYPE_AUDIO = "kaltura/audio";
+  public static final String KALTURA_MIMETYPE_VIDEO = "kaltura/audio";
+  public static final String KALTURA_MIMETYPE_AUDIO = "kaltura/video";
   public static final String KALTURA_MIMETYPE_IMAGE = "kaltura/image";
 
   @Property(intValue = 111, label = "Partner Id")
@@ -183,10 +180,8 @@ public class KalturaMediaService implements MediaService {
       }
     }
     // Widget views
-    kalturaPlayerIdAudio = PropertiesUtil.toString(KALTURA_PLAYER_AUDIO,
-        DEFAULT_KALTURA_PLATER_AUDIO);
-    kalturaPlayerIdView = PropertiesUtil.toString(KALTURA_PLAYER_VIEW,
-        DEFAULT_KALTURA_PLATER_VIDEO);
+    kalturaPlayerIdAudio = PropertiesUtil.toString(props.get(KALTURA_PLAYER_AUDIO), DEFAULT_KALTURA_PLATER_AUDIO);
+    kalturaPlayerIdView = PropertiesUtil.toString(props.get(KALTURA_PLAYER_VIEW), DEFAULT_KALTURA_PLATER_VIDEO);
 
     KalturaConfiguration kc = new KalturaConfiguration();
     kc.setPartnerId(kalturaPartnerId);
@@ -780,39 +775,6 @@ public class KalturaMediaService implements MediaService {
   // ------- OAE Content Methods -----
 
   /**
-   * Retrieve an OAE content item
-   * 
-   * @param poolId the unique path/poolId of a content object
-   * @param versionId the version of the content object.
-   *           The current version will be fetched if versionId is null.
-   * @return the Content object
-   * @throws RuntimeException if the content object cannot be retrieved
-   */
-  private Content getContent(String poolId, String versionId) {
-    Content content = null;
-    try {
-      Session adminSession = repository.loginAdministrative();
-      ContentManager cm = adminSession.getContentManager();
-      if (versionId == null){
-        content = cm.get(poolId);
-      }
-      else { 
-        content = cm.getVersion(poolId, versionId);
-      }
-      adminSession.logout();
-    } catch (Exception e) {
-      LOG.error("Unable to get content by path={}", poolId, e.getMessage());
-      throw new RuntimeException("Unable to get content by path=" + poolId
-          + ": " + e, e);
-    }
-    if (content == null) {
-      throw new RuntimeException("Unable to get content by path=" + poolId
-          + ": item not found");
-    }
-    return content;
-  }
-
-  /**
    * Get the index of the version in the version history.
    * OAE version numbers are big ugly hashed ids.
    * This method translates it into an ordinal version number.
@@ -847,60 +809,9 @@ public class KalturaMediaService implements MediaService {
     return orderedVersion;
   }
 
-  /**
-   * Update an OAE content item
-   * 
-   * @param poolId
-   *          the unique path/poolId of a content object
-   * @param properties
-   *          the properties to update or delete on this object (props with a
-   *          NULL value will be removed, all others will be replaced or added)
-   * @return the complete set of new properties for the content
-   * @throws RuntimeException
-   *           if the content object cannot be updated
-   */
-  private Map<String, Object> updateContent(String poolId, Map<?, ?> properties) {
-    Map<String, Object> props = null;
-    String versionId = null;
-    if (properties.containsKey(InternalContent.VERSION_HISTORY_ID_FIELD)){
-      versionId = (String)properties.get(InternalContent.VERSION_HISTORY_ID_FIELD);
-    }
-    Content contentItem = getContent(poolId, versionId);
-    for (Entry<?, ?> entry : properties.entrySet()) {
-      String key = (String) entry.getKey();
-      Object val = entry.getValue();
-      if (val != null) {
-        contentItem.setProperty(key, val);
-      } else {
-        contentItem.removeProperty(key);
-      }
-    }
-    try {
-      Session adminSession = repository.loginAdministrative();
-      ContentManager contentManager = adminSession.getContentManager();
-      contentManager.update(contentItem);
-      Content content = contentManager.get(poolId);
-      props = content.getProperties();
-      adminSession.logout();
-      LOG.debug("Completed update of content item props ({}) for Kaltura upload", poolId);
-    } catch (Exception e) {
-      LOG.error("Unable to update content at path={}", poolId, e.getMessage());
-      throw new RuntimeException("Unable to update content at path=" + poolId
-          + ": " + e, e);
-    }
-    return props;
-  }
-
-  public String getMimeType(String mimeType, String extension) {
-    String kaltuaMimeType; = "kaltura/video";
-    if (audioExtensions.contains(extension)){
-      kaltuaMimeType; = "kaltura/audio";
-    }
-    return kaltuaMimeType;
-  }
-
-  public boolean isMedia(String mimeType) {
-    return acceptsFileType(mimeType, null);
+  @Override
+  public String getMimeType() {
+    return APPLICATION_X_MEDIA_KALTURA;
   }
 
 }
