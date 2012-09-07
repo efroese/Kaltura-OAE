@@ -249,7 +249,6 @@ public class KalturaMediaService implements MediaService {
   public String createMedia(File media, MediaMetadata metadata)
       throws MediaServiceException {
 
-    // exception if upload fails
     KalturaBaseEntry kbe;
     String mediaId = null;
     try {
@@ -265,10 +264,7 @@ public class KalturaMediaService implements MediaService {
       if (kbe != null) {
         // item upload successful
         KalturaMediaItem mediaItem = new KalturaMediaItem(kbe, metadata.getUser());
-
-        Map<String, Object> props = new HashMap<String, Object>(10);
         mediaId = mediaItem.getKalturaId();
-        props.put("bodyMediaId", mediaId);
 
         String kalturaMimeType = KALTURA_MIMETYPE_VIDEO;
         if (KalturaMediaItem.TYPE_AUDIO.equals(mediaItem.getMediaType())) {
@@ -276,17 +272,6 @@ public class KalturaMediaService implements MediaService {
         } else if (KalturaMediaItem.TYPE_IMAGE.equals(mediaItem.getMediaType())) {
           kalturaMimeType = KALTURA_MIMETYPE_IMAGE;
         }
-        props.put(FilesConstants.POOLED_CONTENT_MIMETYPE, kalturaMimeType);
-
-        props.put("kaltura-updated", new Date().getTime());
-        props.put("kaltura-id", mediaItem.getKalturaId());
-        props.put("kaltura-thumbnail", mediaItem.getThumbnail());
-        props.put("kaltura-download", mediaItem.getDownloadURL());
-        // probably will be 0
-        props.put("kaltura-duration", mediaItem.getDuration());
-        props.put("kaltura-height", mediaItem.getHeight());
-        props.put("kaltura-width", mediaItem.getWidth());
-        props.put("kaltura-type", mediaItem.getType());
 
         LOG.info(
             "Completed upload ({}) to Kaltura of file ({}) of type ({}) and created kalturaEntry ({})",
